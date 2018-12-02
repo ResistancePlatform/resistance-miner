@@ -14,13 +14,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-#if defined(USE_ASM) && \
-	(defined(__x86_64__) || \
-	 (defined(__arm__) && defined(__APCS_32__)) || \
-	 (defined(__powerpc__) || defined(__ppc__) || defined(__PPC__)))
-#define EXTERN_SHA256
-#endif
-
 static const uint32_t sha256_h[8] = {
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
@@ -75,8 +68,6 @@ void sha256_init(uint32_t *state)
 	    S[(68 - i) % 8], S[(69 - i) % 8], \
 	    S[(70 - i) % 8], S[(71 - i) % 8], \
 	    W[i] + sha256_k[i])
-
-#ifndef EXTERN_SHA256
 
 /*
  * SHA256 block compression function.  The 256-bit state is transformed via
@@ -174,9 +165,6 @@ void sha256_transform(uint32_t *state, const uint32_t *block, int swap)
 		state[i] += S[i];
 }
 
-#endif /* EXTERN_SHA256 */
-
-
 static const uint32_t sha256d_hash1[16] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -251,13 +239,6 @@ static inline void sha256d_prehash(uint32_t *S, const uint32_t *W)
 	RNDr(S, W, 1);
 	RNDr(S, W, 2);
 }
-
-#ifdef EXTERN_SHA256
-
-void sha256d_ms(uint32_t *hash, uint32_t *W,
-	const uint32_t *midstate, const uint32_t *prehash);
-
-#else
 
 static inline void sha256d_ms(uint32_t *hash, uint32_t *W,
 	const uint32_t *midstate, const uint32_t *prehash)
@@ -462,172 +443,4 @@ static inline void sha256d_ms(uint32_t *hash, uint32_t *W,
 	hash[7] += hash[3] + S1(hash[0]) + Ch(hash[0], hash[1], hash[2])
 	         + S[60] + sha256_k[60]
 	         + sha256_h[7];
-}
-
-#endif /* EXTERN_SHA256 */
-
-#ifdef HAVE_SHA256_4WAY
-
-void sha256d_ms_4way(uint32_t *hash,  uint32_t *data,
-	const uint32_t *midstate, const uint32_t *prehash);
-
-static inline int scanhash_sha256d_4way(int thr_id, uint32_t *pdata,
-	const uint32_t *ptarget, uint32_t max_nonce, unsigned long *hashes_done)
-{
-	uint32_t data[4 * 64] __attribute__((aligned(128)));
-	uint32_t hash[4 * 8] __attribute__((aligned(32)));
-	uint32_t midstate[4 * 8] __attribute__((aligned(32)));
-	uint32_t prehash[4 * 8] __attribute__((aligned(32)));
-	uint32_t n = pdata[19] - 1;
-	const uint32_t first_nonce = pdata[19];
-	const uint32_t Htarg = ptarget[7];
-	int i, j;
-	
-	memcpy(data, pdata + 16, 64);
-	sha256d_preextend(data);
-	for (i = 31; i >= 0; i--)
-		for (j = 0; j < 4; j++)
-			data[i * 4 + j] = data[i];
-	
-	sha256_init(midstate);
-	sha256_transform(midstate, pdata, 0);
-	memcpy(prehash, midstate, 32);
-	sha256d_prehash(prehash, pdata + 16);
-	for (i = 7; i >= 0; i--) {
-		for (j = 0; j < 4; j++) {
-			midstate[i * 4 + j] = midstate[i];
-			prehash[i * 4 + j] = prehash[i];
-		}
-	}
-	
-	do {
-		for (i = 0; i < 4; i++)
-			data[4 * 3 + i] = ++n;
-		
-		sha256d_ms_4way(hash, data, midstate, prehash);
-		
-		for (i = 0; i < 4; i++) {
-			if (swab32(hash[4 * 7 + i]) <= Htarg) {
-				pdata[19] = data[4 * 3 + i];
-				sha256d_80_swap(hash, pdata);
-				if (fulltest(hash, ptarget)) {
-					*hashes_done = n - first_nonce + 1;
-					return 1;
-				}
-			}
-		}
-	} while (n < max_nonce && !work_restart[thr_id].restart);
-	
-	*hashes_done = n - first_nonce + 1;
-	pdata[19] = n;
-	return 0;
-}
-
-#endif /* HAVE_SHA256_4WAY */
-
-#ifdef HAVE_SHA256_8WAY
-
-void sha256d_ms_8way(uint32_t *hash,  uint32_t *data,
-	const uint32_t *midstate, const uint32_t *prehash);
-
-static inline int scanhash_sha256d_8way(int thr_id, uint32_t *pdata,
-	const uint32_t *ptarget, uint32_t max_nonce, unsigned long *hashes_done)
-{
-	uint32_t data[8 * 64] __attribute__((aligned(128)));
-	uint32_t hash[8 * 8] __attribute__((aligned(32)));
-	uint32_t midstate[8 * 8] __attribute__((aligned(32)));
-	uint32_t prehash[8 * 8] __attribute__((aligned(32)));
-	uint32_t n = pdata[19] - 1;
-	const uint32_t first_nonce = pdata[19];
-	const uint32_t Htarg = ptarget[7];
-	int i, j;
-	
-	memcpy(data, pdata + 16, 64);
-	sha256d_preextend(data);
-	for (i = 31; i >= 0; i--)
-		for (j = 0; j < 8; j++)
-			data[i * 8 + j] = data[i];
-	
-	sha256_init(midstate);
-	sha256_transform(midstate, pdata, 0);
-	memcpy(prehash, midstate, 32);
-	sha256d_prehash(prehash, pdata + 16);
-	for (i = 7; i >= 0; i--) {
-		for (j = 0; j < 8; j++) {
-			midstate[i * 8 + j] = midstate[i];
-			prehash[i * 8 + j] = prehash[i];
-		}
-	}
-	
-	do {
-		for (i = 0; i < 8; i++)
-			data[8 * 3 + i] = ++n;
-		
-		sha256d_ms_8way(hash, data, midstate, prehash);
-		
-		for (i = 0; i < 8; i++) {
-			if (swab32(hash[8 * 7 + i]) <= Htarg) {
-				pdata[19] = data[8 * 3 + i];
-				sha256d_80_swap(hash, pdata);
-				if (fulltest(hash, ptarget)) {
-					*hashes_done = n - first_nonce + 1;
-					return 1;
-				}
-			}
-		}
-	} while (n < max_nonce && !work_restart[thr_id].restart);
-	
-	*hashes_done = n - first_nonce + 1;
-	pdata[19] = n;
-	return 0;
-}
-
-#endif /* HAVE_SHA256_8WAY */
-
-int scanhash_sha256d(int thr_id, uint32_t *pdata, const uint32_t *ptarget,
-	uint32_t max_nonce, unsigned long *hashes_done)
-{
-	uint32_t data[64] __attribute__((aligned(128)));
-	uint32_t hash[8] __attribute__((aligned(32)));
-	uint32_t midstate[8] __attribute__((aligned(32)));
-	uint32_t prehash[8] __attribute__((aligned(32)));
-	uint32_t n = pdata[19] - 1;
-	const uint32_t first_nonce = pdata[19];
-	const uint32_t Htarg = ptarget[7];
-	
-#ifdef HAVE_SHA256_8WAY
-	if (sha256_use_8way())
-		return scanhash_sha256d_8way(thr_id, pdata, ptarget,
-			max_nonce, hashes_done);
-#endif
-#ifdef HAVE_SHA256_4WAY
-	if (sha256_use_4way())
-		return scanhash_sha256d_4way(thr_id, pdata, ptarget,
-			max_nonce, hashes_done);
-#endif
-	
-	memcpy(data, pdata + 16, 64);
-	sha256d_preextend(data);
-	
-	sha256_init(midstate);
-	sha256_transform(midstate, pdata, 0);
-	memcpy(prehash, midstate, 32);
-	sha256d_prehash(prehash, pdata + 16);
-	
-	do {
-		data[3] = ++n;
-		sha256d_ms(hash, data, midstate, prehash);
-		if (swab32(hash[7]) <= Htarg) {
-			pdata[19] = data[3];
-			sha256d_80_swap(hash, pdata);
-			if (fulltest(hash, ptarget)) {
-				*hashes_done = n - first_nonce + 1;
-				return 1;
-			}
-		}
-	} while (n < max_nonce && !work_restart[thr_id].restart);
-	
-	*hashes_done = n - first_nonce + 1;
-	pdata[19] = n;
-	return 0;
 }

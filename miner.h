@@ -136,28 +136,9 @@ void sha256_init(uint32_t *state);
 void sha256_transform(uint32_t *state, const uint32_t *block, int swap);
 void sha256d(unsigned char *hash, const unsigned char *data, int len);
 
-#ifdef USE_ASM
-#if defined(__ARM_NEON__) || defined(__ALTIVEC__) || defined(__i386__) || defined(__x86_64__)
-#define HAVE_SHA256_4WAY 1
-int sha256_use_4way();
-void sha256_init_4way(uint32_t *state);
-void sha256_transform_4way(uint32_t *state, const uint32_t *block, int swap);
-#endif
-#if defined(__x86_64__) && defined(USE_AVX2)
-#define HAVE_SHA256_8WAY 1
-int sha256_use_8way();
-void sha256_init_8way(uint32_t *state);
-void sha256_transform_8way(uint32_t *state, const uint32_t *block, int swap);
-#endif
-#endif
-
-extern int scanhash_sha256d(int thr_id, uint32_t *pdata,
-	const uint32_t *ptarget, uint32_t max_nonce, unsigned long *hashes_done);
-
-extern unsigned char *scrypt_buffer_alloc(int N);
-extern int scanhash_scrypt(int thr_id, uint32_t *pdata,
-	unsigned char *scratchbuf, const uint32_t *ptarget,
-	uint32_t max_nonce, unsigned long *hashes_done, int N);
+extern int scanhash_res_yespower(int thr_id, uint32_t *pdata,
+	const uint32_t *ptarget,
+	uint32_t max_nonce, unsigned long *hashes_done);
 
 struct thr_info {
 	int		id;
@@ -210,6 +191,7 @@ extern void diff_to_target(uint32_t *target, double diff);
 struct stratum_job {
 	char *job_id;
 	unsigned char prevhash[32];
+	unsigned char finalhash[32];
 	size_t coinbase_size;
 	unsigned char *coinbase;
 	unsigned char *xnonce2;
