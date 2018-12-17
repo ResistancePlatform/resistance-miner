@@ -1,3 +1,13 @@
+Version 2.5.0-res2 - Dec 17, 2018
+
+- Readiness to new automake
+- Drop USE_ASM logic as it didn't apply to yespower
+- Documentation updates
+
+Version 2.5.0-res1 - Dec 2, 2018
+
+- Add res-yespower-1.0, drop all old PoW schemes
+
 Version 2.5.0 - Jun 22, 2017
 
 - Add Segwit support

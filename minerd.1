@@ -1,4 +1,4 @@
-.TH MINERD 1 "June 2017" "cpuminer 2.5.0"
+.TH MINERD 1 "December 2018" "cpuminer 2.5.0-res2"
 .SH NAME
 minerd \- CPU miner for Bitcoin and Litecoin
 .SH SYNOPSIS
@@ -64,19 +64,12 @@ minerd \-BSq \-o http://my.server:9327
 .SH OPTIONS
 .TP
 \fB\-a\fR, \fB\-\-algo\fR=\fIALGORITHM\fR
-Set the hashing algorithm to use.
-Default is scrypt.
+Set the Proof-of-Work algorithm to use.
 Possible values are:
 .RS 11
 .TP 10
-.B scrypt
-scrypt(1024, 1, 1) (used by Litecoin)
-.TP
-.B scrypt:\fIN\fR
-scrypt(\fIN\fR, 1, 1) (\fIN\fR must be a power of 2 greater than 1)
-.TP
-.B sha256d
-SHA-256d (used by Bitcoin)
+.B res-yespower-1.0
+yespower 1.0 as used by Resistance
 .RE
 .TP
 \fB\-\-benchmark\fR

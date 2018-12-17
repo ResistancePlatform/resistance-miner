@@ -15,7 +15,7 @@ RUN             git clone https://github.com/pooler/cpuminer
 
 RUN             cd cpuminer && \
                 ./autogen.sh && \
-                ./configure CFLAGS="-O3" && \
+                ./configure CFLAGS='-O2 -fomit-frame-pointer' && \
                 make
 
 WORKDIR         /cpuminer
