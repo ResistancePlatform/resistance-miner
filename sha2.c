@@ -172,21 +172,6 @@ static const uint32_t sha256d_hash1[16] = {
 	0x00000000, 0x00000000, 0x00000000, 0x00000100
 };
 
-static void sha256d_80_swap(uint32_t *hash, const uint32_t *data)
-{
-	uint32_t S[16];
-	int i;
-
-	sha256_init(S);
-	sha256_transform(S, data, 0);
-	sha256_transform(S, data + 16, 0);
-	memcpy(S + 8, sha256d_hash1 + 8, 32);
-	sha256_init(hash);
-	sha256_transform(hash, S, 0);
-	for (i = 0; i < 8; i++)
-		hash[i] = swab32(hash[i]);
-}
-
 void sha256d(unsigned char *hash, const unsigned char *data, int len)
 {
 	uint32_t S[16], T[16];
