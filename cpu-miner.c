@@ -1446,46 +1446,26 @@ out:
 static void show_version_and_exit(void)
 {
 	printf(PACKAGE_STRING "\n built on " __DATE__ "\n features:"
-#if defined(USE_ASM) && defined(__i386__)
+#if defined(__i386__) || defined(__x86_64__)
+#ifdef __x86_64__
+		" x86_64"
+#else
 		" i386"
 #endif
-#if defined(USE_ASM) && defined(__x86_64__)
-		" x86_64"
-		" PHE"
-#endif
-#if defined(USE_ASM) && (defined(__i386__) || defined(__x86_64__))
+#ifdef __SSE2__
 		" SSE2"
 #endif
-#if defined(__x86_64__) && defined(USE_AVX)
+#ifdef __SSE4_1__
+		" SSE4.1"
+#endif
+#ifdef __AVX__
 		" AVX"
 #endif
-#if defined(__x86_64__) && defined(USE_AVX2)
-		" AVX2"
-#endif
-#if defined(__x86_64__) && defined(USE_XOP)
+#ifdef __XOP__
 		" XOP"
 #endif
-#if defined(USE_ASM) && defined(__arm__) && defined(__APCS_32__)
-		" ARM"
-#if defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) || \
-	defined(__ARM_ARCH_5TEJ__) || defined(__ARM_ARCH_6__) || \
-	defined(__ARM_ARCH_6J__) || defined(__ARM_ARCH_6K__) || \
-	defined(__ARM_ARCH_6M__) || defined(__ARM_ARCH_6T2__) || \
-	defined(__ARM_ARCH_6Z__) || defined(__ARM_ARCH_6ZK__) || \
-	defined(__ARM_ARCH_7__) || \
-	defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) || \
-	defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__)
-		" ARMv5E"
-#endif
-#if defined(__ARM_NEON__)
-		" NEON"
-#endif
-#endif
-#if defined(USE_ASM) && (defined(__powerpc__) || defined(__ppc__) || defined(__PPC__))
-		" PowerPC"
-#if defined(__ALTIVEC__)
-		" AltiVec"
-#endif
+#else
+		" generic"
 #endif
 		"\n");
 
