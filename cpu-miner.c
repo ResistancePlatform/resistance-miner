@@ -1,6 +1,7 @@
 /*
  * Copyright 2010 Jeff Garzik
  * Copyright 2012-2017 pooler
+ * Copyright 2018-2019 The Resistance developers
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -37,6 +38,7 @@
 #include <curl/curl.h>
 #include "compat.h"
 #include "miner.h"
+#include "random.h"
 
 #define PROGRAM_NAME		"minerd"
 #define LP_SCANTIME		60
@@ -1164,6 +1166,8 @@ static void *miner_thread(void *userdata)
 			work_free(&work);
 			work_copy(&work, &g_work);
 			work.data[27] = start_nonce;
+			/* the rest of 256-bit nonce */
+			memcpy(work.data + 28, random_get(NULL, 0), 28);
 		} else
 			work.data[27]++;
 		pthread_mutex_unlock(&g_work_lock);
@@ -1933,6 +1937,8 @@ int main(int argc, char *argv[])
 		if (have_stratum)
 			tq_push(thr_info[stratum_thr_id].q, strdup(rpc_url));
 	}
+
+	random_init();
 
 	/* start mining threads */
 	for (i = 0; i < opt_n_threads; i++) {
