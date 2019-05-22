@@ -703,13 +703,13 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 	}
 
 	if (have_stratum) {
-		uint32_t ntime, nonce;
+		unsigned char ntime[4], nonce[4];
 		char ntimestr[9], noncestr[9], *xnonce2str, *req;
 
-		le32enc(&ntime, work->data[25]);
-		le32enc(&nonce, work->data[27]);
-		bin2hex(ntimestr, (const unsigned char *)(&ntime), 4);
-		bin2hex(noncestr, (const unsigned char *)(&nonce), 4);
+		le32enc(ntime, work->data[25]);
+		le32enc(nonce, work->data[27]);
+		bin2hex(ntimestr, ntime, 4);
+		bin2hex(noncestr, nonce, 4);
 		xnonce2str = abin2hex(work->xnonce2, work->xnonce2_len);
 		req = malloc(256 + strlen(rpc_user) + strlen(work->job_id) + 2 * work->xnonce2_len);
 		sprintf(req,
