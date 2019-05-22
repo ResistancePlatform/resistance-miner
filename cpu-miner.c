@@ -1105,6 +1105,7 @@ static void *miner_thread(void *userdata)
 	int thr_id = mythr->id;
 	struct work work = {{0}};
 	uint32_t max_nonce;
+	uint32_t start_nonce = 0xffffffffU / opt_n_threads * thr_id;
 	uint32_t end_nonce = 0xffffffffU / opt_n_threads * (thr_id + 1) - 0x20;
 	char s[16];
 	int i;
@@ -1162,7 +1163,7 @@ static void *miner_thread(void *userdata)
 		if (memcmp(work.data, g_work.data, 108)) {
 			work_free(&work);
 			work_copy(&work, &g_work);
-			work.data[27] = 0xffffffffU / opt_n_threads * thr_id;
+			work.data[27] = start_nonce;
 		} else
 			work.data[27]++;
 		pthread_mutex_unlock(&g_work_lock);
