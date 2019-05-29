@@ -1129,9 +1129,13 @@ static void *miner_thread(void *userdata)
 		affine_to_cpu(thr_id, thr_id % num_processors);
 	}
 
+	unsigned long hashes_done = 0;
+	struct timeval tv_start = {};
+
+	gettimeofday(&tv_start, NULL);
+
 	while (1) {
-		unsigned long hashes_done;
-		struct timeval tv_start, tv_end, diff;
+		struct timeval tv_end, diff;
 		int64_t max64;
 		int rc;
 
@@ -1166,8 +1170,10 @@ static void *miner_thread(void *userdata)
 			work_free(&work);
 			work_copy(&work, &g_work);
 			work.data[27] = start_nonce;
+			/* dare to leak this if random pool is uninitialized */
+			uint32_t seed = tv_start.tv_sec ^ tv_start.tv_usec ^ hashes_done;
 			/* the rest of 256-bit nonce */
-			memcpy(work.data + 28, random_get(NULL, 0), 28);
+			memcpy(work.data + 28, random_get(&seed, sizeof(seed)), 28);
 		} else
 			work.data[27]++;
 		pthread_mutex_unlock(&g_work_lock);

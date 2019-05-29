@@ -69,11 +69,12 @@ uint8_t *random_get(void *extra, size_t extralen)
 	if (!pool_initialized) {
 #if 0
 /* Insist on proper pool initialization */
-		if (read_loop(random_fd, pool, sizeof(pool)) != sizeof(pool))
+		if (random_fd < 0 || read_loop(random_fd, pool, sizeof(pool)) != sizeof(pool))
 			return NULL;
 #else
 /* Try our best, but accept what we get */
-		read_loop(random_fd, pool, sizeof(pool));
+		if (random_fd >= 0)
+			read_loop(random_fd, pool, sizeof(pool));
 #endif
 		pool_initialized = true;
 	}
