@@ -1,0 +1,43 @@
+/*
+ * Copyright 2016 Alexander Peslyak
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+#if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
+#define HAVE_CPUINFO
+
+#include <stdint.h>
+#include <sched.h>
+
+#define CPUINFO_LOGICAL_MAX 1024
+#define CPUINFO_CHIP_MAX 16
+#define CPUINFO_CORE_MAX 256
+
+typedef struct {
+	struct {
+		uint32_t chip, core, seq;
+	} log2phy[CPUINFO_LOGICAL_MAX];
+	uint32_t phy2log[CPUINFO_CHIP_MAX][CPUINFO_CORE_MAX];
+	uint32_t logical, physical;
+} cpuinfo_t;
+
+extern cpuinfo_t cpuinfo;
+
+extern int cpuinfo_init(void);
+
+#endif

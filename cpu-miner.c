@@ -38,7 +38,13 @@
 #include <curl/curl.h>
 #include "compat.h"
 #include "miner.h"
+
 #include "random.h"
+
+#include "cpuinfo.h"
+#ifdef HAVE_CPUINFO
+static int have_cpuinfo;
+#endif
 
 #define PROGRAM_NAME		"minerd"
 #define LP_SCANTIME		60
@@ -1101,6 +1107,88 @@ static void stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 	diff_to_target(work->target, sctx->job.diff / 65536.0);
 }
 
+static void init_thread_affinity(unsigned int thr_id)
+{
+#ifdef HAVE_CPUINFO
+	if (!have_cpuinfo)
+#endif
+	{
+		/* CPU affinity makes most sense if the number of threads is a
+		 * multiple of the number of CPUs */
+		if (num_processors > 1 && opt_n_threads % num_processors == 0) {
+			if (!opt_quiet)
+				applog(LOG_INFO, "Binding thread %u to logical CPU %u",
+				       thr_id, thr_id % num_processors);
+			affine_to_cpu(thr_id, thr_id % num_processors);
+		}
+
+		return;
+	}
+
+#ifdef HAVE_CPUINFO
+	static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&mutex);
+
+	/* Try to order threads by number (this is purely cosmetic) */
+	static unsigned int last_thr_id = -1;
+	unsigned int timeout = 10000;
+	while (thr_id != last_thr_id + 1 && --timeout) {
+		pthread_mutex_unlock(&mutex);
+		sched_yield();
+		pthread_mutex_lock(&mutex);
+	}
+	last_thr_id = thr_id;
+
+	static cpu_set_t cpus_inuse; /* zero-initialized */
+	uint32_t use_per_seq[CPUINFO_LOGICAL_MAX] = {};
+	uint32_t use_per_chip[CPUINFO_CHIP_MAX] = {};
+
+	if (cpuinfo.logical > CPU_SETSIZE)
+		cpuinfo.logical = CPU_SETSIZE;
+
+	uint32_t i;
+	for (i = 0; i < cpuinfo.logical; i++) {
+		if (!CPU_ISSET(i, &cpus_inuse))
+			continue;
+		use_per_seq[cpuinfo.log2phy[i].seq]++;
+		use_per_chip[cpuinfo.log2phy[i].chip]++;
+	}
+
+	uint32_t min_per_seq = UINT32_MAX, min_per_chip = UINT32_MAX;
+	uint32_t imin = UINT32_MAX;
+	for (i = 0; i < cpuinfo.logical; i++) {
+		if (CPU_ISSET(i, &cpus_inuse))
+			continue;
+		uint32_t cur_per_seq = use_per_seq[cpuinfo.log2phy[i].seq];
+		uint32_t cur_per_chip = use_per_chip[cpuinfo.log2phy[i].chip];
+		if (cur_per_seq < min_per_seq || (cur_per_seq == min_per_seq &&
+		    cur_per_chip < min_per_chip)) {
+			min_per_seq = cur_per_seq;
+			min_per_chip = cur_per_chip;
+			imin = i;
+		}
+	}
+
+	if (imin == UINT32_MAX)
+		return;
+
+	if (!opt_quiet)
+		applog(LOG_INFO, "Binding thread %u to logical CPU %u (chip %u, core %u)",
+		       thr_id, imin, cpuinfo.log2phy[imin].chip, cpuinfo.log2phy[imin].core);
+
+	cpu_set_t cpus;
+	CPU_ZERO(&cpus);
+	CPU_SET(imin, &cpus);
+	if (sched_setaffinity(0, sizeof(cpus), &cpus)) {
+		perror("sched_setaffinity");
+	} else {
+		CPU_SET(imin, &cpus_inuse);
+	}
+
+	pthread_mutex_unlock(&mutex);
+#endif
+}
+
 static void *miner_thread(void *userdata)
 {
 	struct thr_info *mythr = userdata;
@@ -1112,21 +1200,14 @@ static void *miner_thread(void *userdata)
 	char s[16];
 	int i;
 
+	init_thread_affinity(thr_id);
+
 	/* Set worker threads to nice 19 and then preferentially to SCHED_IDLE
 	 * and if that fails, then SCHED_BATCH. No need for this to be an
 	 * error if it fails */
 	if (!opt_benchmark) {
 		setpriority(PRIO_PROCESS, 0, 19);
 		drop_policy();
-	}
-
-	/* Cpu affinity only makes sense if the number of threads is a multiple
-	 * of the number of CPUs */
-	if (num_processors > 1 && opt_n_threads % num_processors == 0) {
-		if (!opt_quiet)
-			applog(LOG_INFO, "Binding thread %d to cpu %d",
-			       thr_id, thr_id % num_processors);
-		affine_to_cpu(thr_id, thr_id % num_processors);
 	}
 
 	unsigned long hashes_done = 0;
@@ -1944,7 +2025,14 @@ int main(int argc, char *argv[])
 			tq_push(thr_info[stratum_thr_id].q, strdup(rpc_url));
 	}
 
+/* Only try /dev/urandom on Unix-like systems */
+#ifdef __unix__
 	random_init();
+#endif
+
+#ifdef HAVE_CPUINFO
+	have_cpuinfo = !cpuinfo_init();
+#endif
 
 	/* start mining threads */
 	for (i = 0; i < opt_n_threads; i++) {
@@ -1960,6 +2048,10 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 	}
+
+	/* Give the threads a chance to print their messages first */
+	if (!opt_quiet)
+		sleep(1);
 
 	applog(LOG_INFO, "%d miner threads started, "
 		"using '%s' algorithm.",
