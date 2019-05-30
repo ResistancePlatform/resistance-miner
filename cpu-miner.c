@@ -1959,8 +1959,16 @@ int main(int argc, char *argv[])
 #endif
 	if (num_processors < 1)
 		num_processors = 1;
-	if (!opt_n_threads)
+
+#ifdef HAVE_CPUINFO
+	have_cpuinfo = !cpuinfo_init();
+#endif
+
+	if (!opt_n_threads) {
 		opt_n_threads = num_processors;
+		if (have_cpuinfo)
+			opt_n_threads = cpuinfo.physical;
+	}
 
 #ifdef HAVE_SYSLOG_H
 	if (use_syslog)
@@ -2030,10 +2038,6 @@ int main(int argc, char *argv[])
 /* Only try /dev/urandom on Unix-like systems */
 #ifdef __unix__
 	random_init();
-#endif
-
-#ifdef HAVE_CPUINFO
-	have_cpuinfo = !cpuinfo_init();
 #endif
 
 	/* start mining threads */
