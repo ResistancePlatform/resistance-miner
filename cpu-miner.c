@@ -1270,7 +1270,7 @@ static void *miner_thread(void *userdata)
 		if (max64 <= 0) {
 			switch (opt_algo) {
 			case ALGO_RES_YESPOWER_1_0:
-				max64 = 0x3ffff;
+				max64 = 499;
 				break;
 			}
 		}
@@ -1311,8 +1311,10 @@ static void *miner_thread(void *userdata)
 		}
 		if (opt_benchmark && thr_id == opt_n_threads - 1) {
 			double hashrate = 0.;
+			pthread_mutex_lock(&stats_lock);
 			for (i = 0; i < opt_n_threads && thr_hashrates[i]; i++)
 				hashrate += thr_hashrates[i];
+			pthread_mutex_unlock(&stats_lock);
 			if (i == opt_n_threads) {
 				sprintf(s, hashrate >= 1e3 ? "%.0f" : "%.1f", hashrate);
 				applog(LOG_INFO, "Total: %s hash/s", s);
