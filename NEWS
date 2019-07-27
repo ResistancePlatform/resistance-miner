@@ -1,3 +1,13 @@
+Version 2.5.0-res3 - Jul 27, 2019
+
+- Use system topology info to bind threads to CPUs optimally (on Linux only)
+- Set default thread count to physical CPU core count (on Linux only)
+- Use random 256-bit nonces (avoids overlaps when many miners share a node)
+- Move our recommended CFLAGS from README to configure.ac
+- Saner first step duration (500 hashes)
+- Report hash/s, not khash/s
+- yespower 1.0.1
+
 Version 2.5.0-res2 - Dec 17, 2018
 
 - Readiness to new automake
