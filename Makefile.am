@@ -21,6 +21,5 @@ minerd_SOURCES	= elist.h miner.h compat.h \
 		  yespower/sha256.c yespower/yespower-opt.c res-yespower.c
 minerd_LDFLAGS	= $(PTHREAD_FLAGS)
 minerd_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@
-minerd_CFLAGS	= -fno-strict-aliasing
 minerd_CPPFLAGS	= @LIBCURL_CPPFLAGS@ $(JANSSON_INCLUDES) $(PTHREAD_FLAGS)
 

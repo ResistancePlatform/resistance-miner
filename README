@@ -14,7 +14,7 @@ Dependencies:
 
 Basic *nix build instructions:
 	./autogen.sh	# only needed if building from git repo
-	./configure CFLAGS='-O2 -fomit-frame-pointer' # Make sure -O2 is an O and not a zero!
+	./configure
 	make
 
 Notes for AIX users:
@@ -31,7 +31,7 @@ Basic Windows build instructions, using MinGW:
 		* Make sure you have curl-config in MinGW\bin
 	In the MSYS shell, run:
 		./autogen.sh	# only needed if building from git repo
-		LIBCURL='-lcurldll' ./configure CFLAGS='-O2 -fomit-frame-pointer'
+		LIBCURL='-lcurldll' ./configure
 		make
 
 Usage instructions:  Run "minerd --help" to see options.
