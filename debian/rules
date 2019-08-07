@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+
+## Copyright (C) 2016 - 2019 ENCRYPTED SUPPORT LP <adrelanos@riseup.net>
+## See the file COPYING for copying conditions.
+
+export DH_VERBOSE=1
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+%:
+	dh $@
+
+override_dh_installman:
+	dh_installman $(CURDIR)/minerd.1
+
+override_dh_installchangelogs:
+	dh_installchangelogs NEWS upstream
+
+## TODO: build currently is not done during package creation.
+override_dh_autoreconf:
+	true
+
+## TODO: build currently is not done during package creation.
+override_dh_auto_configure:
+	true
+
+## TODO: build currently is not done during package creation.
+override_dh_auto_build:
+	true

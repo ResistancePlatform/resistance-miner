@@ -1,0 +1,22 @@
+## Copyright (C) 2012 - 2019 ENCRYPTED SUPPORT LP <adrelanos@riseup.net>
+## See the file COPYING for copying conditions.
+
+Source: resistance-miner
+Section: misc
+Priority: optional
+Maintainer: Patrick Schleizer <adrelanos@riseup.net>
+Build-Depends: debhelper (>= 12), genmkfile
+Homepage: https://github.com/ResistancePlatform/resistance-miner
+Vcs-Browser: https://github.com/ResistancePlatform/resistance-miner
+Vcs-Git: https://github.com/ResistancePlatform/resistance-miner.git
+Standards-Version: 4.3.0
+
+Package: resistance-miner
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Miner for the Resistance RES Network
+ CPU miner.
+ .
+ This is a multi-threaded CPU miner for Resistance, fork of pooler's fork of
+ Jeff Garzik's reference cpuminer.  Bitcoin's SHA-256d and Litecoin's scrypt
+ have been dropped in favor of Resistance's yespower 1.0 in this fork.

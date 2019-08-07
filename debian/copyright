@@ -1,0 +1,9 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+
+Files: *
+Copyright: Copyright (c) Jeff Garzik <jgarzik@pobox.com>
+ Copyright (c) ArtForz
+ Copyright (c) pooler <pooler@litecoinpool.org>
+ Copyright (c) The Resistance developers
+License: GPL-2
+ see `/usr/share/common-licenses/GPL-2'
