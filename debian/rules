@@ -5,8 +5,28 @@
 
 export DH_VERBOSE=1
 
-export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-DPKG_EXPORT_BUILDFLAGS = 1
+## Do not enable hardening compile flags per:
+## https://github.com/ResistancePlatform/resistance-miner/issues/8#issuecomment-519093678
+## https://github.com/ResistancePlatform/resistance-miner/issues/9
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+#DPKG_EXPORT_BUILDFLAGS = 1
+#include /usr/share/dpkg/buildflags.mk
+
+# export DEB_CPPFLAGS_MAINT_STRIP = -specs=/usr/share/dpkg/no-pie-compile.specs
+# export DEB_CFLAGS_MAINT_SET = -g
+# export DEB_CPPFLAGS_MAINT_SET = -g
+# export DEB_CXXFLAGS_MAINT_SET = -g
+# export DEB_OBJCFLAGS_MAINT_SET = -g
+# export DEB_OBJCXXFLAGS_MAINT_SET = -g
+# export DEB_GCJFLAGS_MAINT_SET = -g
+# export DEB_FFLAGS_MAINT_SET = -g
+# export DEB_FCFLAGS_MAINT_SET = -g
+# export DEB_LDFLAGS_MAINT_SET = -g
+#export DEB_CFLAGS_MAINT_APPEND = -fomit-frame-pointer
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all qa=-bug,-canary
+export DEB_CFLAGS_MAINT_SET = -O2 -fomit-frame-pointer
+
 include /usr/share/dpkg/buildflags.mk
 
 %:
@@ -18,14 +38,18 @@ override_dh_installman:
 override_dh_installchangelogs:
 	dh_installchangelogs NEWS upstream
 
-## TODO: build currently is not done during package creation.
-override_dh_autoreconf:
+## This is required due to not using Debian default compile parameters.
+override_dh_dwz:
 	true
 
-## TODO: build currently is not done during package creation.
-override_dh_auto_configure:
-	true
-
-## TODO: build currently is not done during package creation.
-override_dh_auto_build:
-	true
+# ## TODO: build currently is not done during package creation.
+# override_dh_autoreconf:
+# 	true
+#
+# ## TODO: build currently is not done during package creation.
+# override_dh_auto_configure:
+# 	true
+#
+# ## TODO: build currently is not done during package creation.
+# override_dh_auto_build:
+# 	true

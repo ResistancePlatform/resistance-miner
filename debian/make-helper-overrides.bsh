@@ -6,3 +6,13 @@
 ## Upstream not using copyright years in COPYING file so debian/copyright
 ## cannot fix that either.
 genmkfile_lintian_post_opts+=" --suppress-tags copyright-without-copyright-notice"
+
+## Using compile flags as close to upstream defaults since this is a
+## performance relevant application.
+## https://github.com/ResistancePlatform/resistance-miner/issues/8
+## https://github.com/ResistancePlatform/resistance-miner/issues/9
+## https://github.com/ResistancePlatform/resistance-miner/issues/12
+genmkfile_lintian_post_opts+=" --suppress-tags hardening-no-fortify-functions"
+genmkfile_lintian_post_opts+=" --suppress-tags hardening-no-bindnow"
+genmkfile_lintian_post_opts+=" --suppress-tags hardening-no-pie"
+genmkfile_lintian_post_opts+=" --suppress-tags debug-file-with-no-debug-symbols"
