@@ -2,18 +2,25 @@ This is a multi-threaded CPU miner for Resistance, fork of pooler's fork of
 Jeff Garzik's reference cpuminer.  Bitcoin's SHA-256d and Litecoin's scrypt
 have been dropped in favor of Resistance's yespower 1.0 in this fork.
 
-License: GPLv2.  See COPYING for details.
+License:  GPLv2.  See COPYING for details.
 
-Downloads:  https://sourceforge.net/projects/cpuminer/files/
-Git tree:   https://github.com/pooler/cpuminer
+Git tree:  https://github.com/ResistancePlatform/resistance-miner
 
-Dependencies:
-	libcurl			http://curl.haxx.se/libcurl/
-	jansson			http://www.digip.org/jansson/
-		(jansson is included in-tree)
+Build dependencies:
+	autoconf
+	automake
+	GNU make
+	gcc
+	libcurl			https://curl.haxx.se/libcurl/
+
+On recent Debian and Ubuntu, these can be installed with:
+	apt-get install build-essential libcurl4-openssl-dev
+
+On recent Fedora, RHEL, CentOS, these can be installed with:
+	yum install autoconf automake make gcc libcurl-devel
 
 Basic *nix build instructions:
-	./autogen.sh	# only needed if building from git repo
+	./autogen.sh
 	./configure
 	make
 
@@ -26,12 +33,12 @@ Basic Windows build instructions, using MinGW:
 	Install MinGW and the MSYS Developer Tool Kit (http://www.mingw.org/)
 		* Make sure you have mstcpip.h in MinGW\include
 	If using MinGW-w64, install pthreads-w64
-	Install libcurl devel (http://curl.haxx.se/download.html)
+	Install libcurl devel (https://curl.haxx.se/download.html)
 		* Make sure you have libcurl.m4 in MinGW\share\aclocal
 		* Make sure you have curl-config in MinGW\bin
 	In the MSYS shell, run:
-		./autogen.sh	# only needed if building from git repo
-		LIBCURL='-lcurldll' ./configure
+		./autogen.sh
+		LIBCURL_LDFLAGS='-lcurldll' ./configure
 		make
 
 Usage instructions:  Run "minerd --help" to see options.
@@ -43,7 +50,3 @@ available since libcurl 7.18.0.
 If no protocol is specified, the proxy is assumed to be a HTTP proxy.
 When the --proxy option is not used, the program honors the http_proxy
 and all_proxy environment variables.
-
-Also many issues and FAQs are covered in the forum thread
-dedicated to this program,
-	https://bitcointalk.org/index.php?topic=55038.0
