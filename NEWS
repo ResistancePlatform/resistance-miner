@@ -1,3 +1,10 @@
+Version 2.5.0-res4 - Aug 11, 2019
+
+- Rework libcurl detection
+- Update URLs and build instructions in the README
+- Don't include build date/time into the binary to allow reproducible builds
+- Suppress unimportant GCC 8+ warnings in the bundled jansson library
+
 Version 2.5.0-res3 - Jul 27, 2019
 
 - Use system topology info to bind threads to CPUs optimally (on Linux only)
