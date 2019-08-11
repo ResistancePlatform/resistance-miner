@@ -19,7 +19,6 @@ minerd_SOURCES	= elist.h miner.h compat.h \
 		  sha2.c \
 		  random.c cpuinfo.c \
 		  yespower/sha256.c yespower/yespower-opt.c res-yespower.c
-minerd_LDFLAGS	= $(PTHREAD_FLAGS)
-minerd_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@
-minerd_CPPFLAGS	= @LIBCURL_CPPFLAGS@ $(JANSSON_INCLUDES) $(PTHREAD_FLAGS)
+minerd_LDADD	= $(PTHREAD_FLAGS) @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@
+minerd_CPPFLAGS	= $(PTHREAD_FLAGS) @CPPFLAGS@ $(JANSSON_INCLUDES)
 

@@ -74,8 +74,27 @@ else
 	JANSSON_LIBS=-ljansson
 fi
 
-LIBCURL_CHECK_CONFIG(, 7.15.2, ,
-  [AC_MSG_ERROR([Missing required libcurl >= 7.15.2])])
+if test -z "$LIBCURL_LDFLAGS"; then
+	LIBCURL_LDFLAGS="-lcurl"
+fi
+
+# libcurl install path (for mingw : --with-curl=/usr/local)
+AC_ARG_WITH([curl],
+  [  --with-curl=PATH         prefix where curl is installed [default=/usr]])
+
+if test -n "$with_curl"; then
+	LIBCURL_CFLAGS="$LIBCURL_CFLAGS -I$with_curl/include"
+	LIBCURL_CPPFLAGS="$LIBCURL_CPPFLAGS -I$with_curl/include"
+	LIBCURL_LDFLAGS="$LIBCURL_LDFLAGS -L$with_curl/lib"
+fi
+
+CFLAGS="$CFLAGS $LIBCURL_CFLAGS"
+CPPFLAGS="$CPPFLAGS $LIBCURL_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBCURL_LDFLAGS"
+
+# AC_SUBST(LIBCURL_CFLAGS)
+# AC_SUBST(LIBCURL_CPPFLAGS)
+# AC_SUBST(LIBCURL_LDFLAGS)
 
 AC_SUBST(JANSSON_LIBS)
 AC_SUBST(PTHREAD_FLAGS)
