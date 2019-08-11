@@ -5,6 +5,10 @@
  * it under the terms of the MIT license. See LICENSE for details.
  */
 
+#if __GNUC__ >= 8
+#pragma GCC diagnostic ignored "-Wformat-truncation"
+#endif
+
 #define _GNU_SOURCE
 #include <ctype.h>
 #include <errno.h>
