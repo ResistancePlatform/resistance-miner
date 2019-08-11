@@ -1539,7 +1539,7 @@ out:
 
 static void show_version_and_exit(void)
 {
-	printf(PACKAGE_STRING "\n built on " __DATE__ "\n features:"
+	printf(PACKAGE_STRING "\nFeatures:"
 #if defined(__i386__) || defined(__x86_64__)
 #ifdef __x86_64__
 		" x86_64"
