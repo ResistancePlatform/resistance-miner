@@ -74,8 +74,8 @@ else
 	JANSSON_LIBS=-ljansson
 fi
 
-if test -z "$LIBCURL_LDFLAGS"; then
-	LIBCURL_LDFLAGS="-lcurl"
+if test -z "$LIBCURL"; then
+	LIBCURL="-lcurl"
 fi
 
 # libcurl install path (for mingw : --with-curl=/usr/local)
@@ -92,6 +92,7 @@ CFLAGS="$CFLAGS $LIBCURL_CFLAGS"
 CPPFLAGS="$CPPFLAGS $LIBCURL_CPPFLAGS"
 LDFLAGS="$LDFLAGS $LIBCURL_LDFLAGS"
 
+AC_SUBST(LIBCURL)
 # AC_SUBST(LIBCURL_CFLAGS)
 # AC_SUBST(LIBCURL_CPPFLAGS)
 # AC_SUBST(LIBCURL_LDFLAGS)
