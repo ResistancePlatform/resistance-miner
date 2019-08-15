@@ -38,7 +38,7 @@ Basic Windows build instructions, using MinGW:
 		* Make sure you have curl-config in MinGW\bin
 	In the MSYS shell, run:
 		./autogen.sh
-		LIBCURL_LDFLAGS='-lcurldll' ./configure
+		LIBCURL='-lcurldll' ./configure
 		make
 
 Usage instructions:  Run "minerd --help" to see options.
