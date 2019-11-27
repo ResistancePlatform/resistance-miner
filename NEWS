@@ -1,3 +1,8 @@
+Version 2.5.0-res6 - Nov 27, 2019
+
+- Parse and report JSON-RPC errors despite of HTTP errors
+- Don't fallback to getwork
+
 Version 2.5.0-res5 - Sep 24, 2019
 
 - Bring libcurl linking closer to old version's and cpuminer-opt's
