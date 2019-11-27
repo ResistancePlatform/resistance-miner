@@ -372,7 +372,7 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 	if (opt_cert)
 		curl_easy_setopt(curl, CURLOPT_CAINFO, opt_cert);
 	curl_easy_setopt(curl, CURLOPT_ENCODING, "");
-	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
+	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 0);
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(curl, CURLOPT_TCP_NODELAY, 1);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, all_data_cb);
@@ -424,14 +424,16 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 	rc = curl_easy_perform(curl);
 	if (curl_err != NULL)
 		*curl_err = rc;
-	if (rc) {
-		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_rc);
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_rc);
+	if (rc || http_rc >= 400) {
+		if (!rc)
+			snprintf(curl_err_str, sizeof(curl_err_str), "%ld", http_rc);
 		if (!((flags & JSON_RPC_LONGPOLL) && rc == CURLE_OPERATION_TIMEDOUT) &&
 		    !((flags & JSON_RPC_QUIET_404) && http_rc == 404))
 			applog(LOG_ERR, "HTTP request failed: %s", curl_err_str);
 		if (curl_err && (flags & JSON_RPC_QUIET_404) && http_rc == 404)
 			*curl_err = CURLE_OK;
-		goto err_out;
+		goto delayed_err_out;
 	}
 
 	/* If X-Stratum was found, activate Stratum */
@@ -450,6 +452,7 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 		hi.lp_path = NULL;
 	}
 
+delayed_err_out:
 	if (!all_data.buf) {
 		applog(LOG_ERR, "Empty data received in json_rpc_call.");
 		goto err_out;
@@ -488,6 +491,9 @@ json_t *json_rpc_call(CURL *curl, const char *url,
 
 		goto err_out;
 	}
+
+	if (rc || http_rc >= 400)
+		goto err_out;
 
 	if (hi.reason)
 		json_object_set_new(val, "reject-reason", json_string(hi.reason));
