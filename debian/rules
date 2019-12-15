@@ -30,7 +30,7 @@ export DEB_CFLAGS_MAINT_SET = -O2 -fomit-frame-pointer
 include /usr/share/dpkg/buildflags.mk
 
 %:
-	dh $@
+	dh $@ --with autoreconf
 
 override_dh_installman:
 	dh_installman $(CURDIR)/minerd.1

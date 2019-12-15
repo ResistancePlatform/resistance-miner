@@ -3,6 +3,11 @@
 ## Copyright (C) 2019 - 2019 ENCRYPTED SUPPORT LP <adrelanos@riseup.net>
 ## See the file COPYING for copying conditions.
 
+## Actually compatible debhelper 12 and
+## compatible to be build on Debian 10 buster
+## but for Ubuntu xenial which has only debehlper 9 compatibility.
+genmkfile_lintian_post_opts+=" --suppress-tags package-uses-old-debhelper-compat-version"
+
 ## Upstream not using copyright years in COPYING file so debian/copyright
 ## cannot fix that either.
 genmkfile_lintian_post_opts+=" --suppress-tags copyright-without-copyright-notice"

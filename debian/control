@@ -5,8 +5,8 @@ Source: resistance-miner
 Section: misc
 Priority: optional
 Maintainer: Patrick Schleizer <adrelanos@riseup.net>
-Build-Depends: debhelper (>= 12), genmkfile, pkg-config,
- libcurl4-openssl-dev
+Build-Depends: debhelper (>= 9), genmkfile, pkg-config,
+ libcurl4-openssl-dev, dh-autoreconf
 Homepage: https://github.com/ResistancePlatform/resistance-miner
 Vcs-Browser: https://github.com/ResistancePlatform/resistance-miner
 Vcs-Git: https://github.com/ResistancePlatform/resistance-miner.git
