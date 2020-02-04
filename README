@@ -43,6 +43,19 @@ Basic Windows build instructions, using MinGW:
 
 Usage instructions:  Run "minerd --help" to see options.
 
+You can solo-mine using these options:
+
+	./minerd -o http://127.0.0.1:8132 -u user -p putyourrpcpasswordhere
+
+(Omit the leading "./" if you're on Windows.)  For the above to work, you need
+a fully-synced node running locally and with RPC username/password configured,
+e.g. with the below in your ".resistance/resistance.conf":
+
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.0/8
+rpcuser=user
+rpcpassword=putyourrpcpasswordhere
+
 Connecting through a proxy:  Use the --proxy option.
 To use a SOCKS proxy, add a socks4:// or socks5:// prefix to the proxy host.
 Protocols socks4a and socks5h, allowing remote name resolving, are also
